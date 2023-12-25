@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pomodoro Timer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        text-align: center;
+        color: #ecd3d6;
+        background-color: #0b2b27;
+      }
+      #title {
+        font-size: 3em;
+        margin: 50px;
+      }
+      #timer {
+        font-size: 3em;
+        margin: 5px;
+      }
+      #progress-bar {
+        width: 70%; /* タイマーが中央にくるように変更 */
+        margin: 0px auto; /* 上下に20px、水平方向に自動で中央に配置 */
+        margin-bottom: 100px; /* 下に40px余白をもたせる */
+        height: 20px;
+        background-color: #ecd3d6;
+        overflow: hidden;
+        position: relative;
+        border-radius: 5px;
+
+        border: 2px solid #ecd3d6;
+      }
+
+      #progress {
+        height: 100%;
+        width: 0;
+        background-color: #0b2b27;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      button {
+        width: 100px;
+        height: 50px;
+        color: #ecd3d6;
+        background-color: rgba(0, 0, 0, 0);
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        margin-left: 10px;
+        margin-right: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+
+        border: 2px solid #ecd3d6;
+      }
+      buttonTweet {
+        width: 100px;
+        color: #ddd;
+        background-color: rgba(0, 0, 0, 0);
+
+        padding: 10px 60px;
+        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 1.5em;
+        font-weight: bold;
+
+        border: 2px solid #ecd3d6;
+        text-align: center;
+      }
+
+      #play-pause-icon {
+        font-size: 1.5em;
+      }
+      #reset-icon {
+        font-size: 1.5em;
+      }
+      #buttons-center {
+        display: flex;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">Pomodoro Timer</h1>
+    <div id="timer">25:00</div>
+    <div id="progress-bar">
+      <div id="progress"></div>
+    </div>
+    <div id="buttons-center">
+      <button onclick="toggleTimer()">
+        <i id="play-pause-icon" class="fas fa-play"></i>
+      </button>
+      <button onclick="resetTimer()">
+        <i id="reset-icon" class="fas fa-undo"></i>
+      </button>
+    </div>
+    <buttonTweet
+      id="tweetbutton"
+      onclick="tweetResult()"
+      style="display: none;"
+    >
+      Tweet 🍵
+    </buttonTweet>
+
+    <h2>Made by tom-techh</h2>
+    <img
+      style="border-radius: 50%; width: 20%; height: 20%"
+      src="https://github.com/tom-techh.png"
+    />
+
+    <script>
+      class State {
+        constructor() {
+          this.studing = true;
+          this.isPaused = true;
+        }
+      }
+      let state = new State();
+      //#4b5b59;
+      let timer = null;
+      let timeLeft = 25 * 60; // 25 minutes in seconds
+
+      function toggleTimer() {
+        if (!timer) {
+          timer = setInterval(updateTimer, 1000);
+          state.isPaused = false;
+          //document.getElementById("start_stop").innerText = "Stop";
+          updatePlayPauseIcon();
+        } else {
+          clearInterval(timer);
+          timer = null;
+          state.isPaused = true;
+          //document.getElementById("start_stop").innerText = "Start";
+          updatePlayPauseIcon();
+        }
+      }
+
+      function resetTimer() {
+        clearInterval(timer);
+        timer = null;
+        state.isPaused = true;
+        state.studing = true;
+        timeLeft = 1500;
+        //document.getElementById("start_stop").innerText = "Start";
+        updatePlayPauseIcon();
+        updateDisplay();
+      }
+
+      function updateTimer() {
+        if (!state.isPaused) {
+          timeLeft -= 1;
+          updateDisplay();
+
+          if (timeLeft === -1) {
+            if (state.studing) {
+              timeLeft = 300; //5分
+              state.studing = false;
+
+              document.body.style.backgroundColor = "#6b6599";
+              const button = document.getElementById("tweetbutton");
+              button.style.display = "inline-block";
+            } else {
+              document.body.style.backgroundColor = "#0b2b27";
+              resetTimer();
+              const button = document.getElementById("tweetbutton");
+              button.style.display = "none";
+            }
+            updateDisplay();
+          }
+        }
+      }
+
+      function updateDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById("timer").innerText =
+          `${minutes.toString().padStart(2, "0")}:${seconds
+            .toString()
+            .padStart(2, "0")}` +
+          "  " +
+          (state.studing ? "" : "Break");
+
+        let progressBarWidth;
+        if (state.studing) {
+          progressBarWidth = ((1500 - timeLeft) / 1500) * 100;
+          //color
+          document.getElementById("progress").style.backgroundColor = "#0b2b27";
+        } else {
+          progressBarWidth = ((300 - timeLeft) / 300) * 100;
+          //color
+          document.getElementById("progress").style.backgroundColor = "#6b6599";
+        }
+        document.getElementById("progress").style.width =
+          progressBarWidth + "%";
+      }
+      function tweetResult() {
+        const tweetButton = document.getElementById("tweetbutton");
+        tweetButton.style.display = "none";
+        // Tweet内容を取得
+        let tweetText = `🐣「この人は30分勉強しました。えらい。」\n https://twitter.com/letejada`;
+        //現在時刻をtweetTextに追加
+        const now = new Date();
+        tweetText += `\n${now.getFullYear()}/${now.getMonth() + 1}/${now
+          .getDate()
+          .toString()
+          .padStart(2, "0")} ${now.getHours().toString().padStart(2, "0")}:${now
+          .getMinutes()
+          .toString()
+          .padStart(2, "0")}`;
+
+        // Twitter Web Intent
+        const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          tweetText
+        )}`;
+        window.open(twitterIntentUrl, "_blank");
+      }
+
+      function updatePlayPauseIcon() {
+        const playPauseIcon = document.getElementById("play-pause-icon");
+        playPauseIcon.className = state.isPaused
+          ? "fas fa-play"
+          : "fas fa-pause";
+      }
+    </script>
+  </body>
+</html>
