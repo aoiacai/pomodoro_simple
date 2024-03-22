@@ -1,1 +1,1 @@
-https://mizuirazu.github.io/pomodoro_simple
+https://aoiacai.github.io/pomodoro_simple
